@@ -4,6 +4,7 @@ import { UserEntity } from '../user/user.entity';
 import { UpdateUserDto, UserLoginDto } from '../user/dto';
 import { comparePasswords } from '../../utils/bcypt';
 import { getToken } from '../../utils/jwt';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -36,9 +37,7 @@ export class AuthService {
       user.access_token = accessToken;
       user.refresh_token = refreshToken;
 
-      await this.userService.updateUser(user as UpdateUserDto);
-
-      return user;
+      return await this.userService.updateUser(user as UpdateUserDto);
     } catch (error) {
       throw error;
     }

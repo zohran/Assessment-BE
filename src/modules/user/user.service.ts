@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UserEntity } from './user.entity';
 import { Model, Types } from 'mongoose';
 import { RegisterUserDto, UpdateUserDto } from './dto';
+import { hashPassword } from 'src/utils/bcypt';
 
 @Injectable()
 export class UserService {
@@ -18,6 +19,7 @@ export class UserService {
       if (user) {
         throw new HttpException('User already exists', HttpStatus.CONFLICT);
       }
+      registerUser.password = await hashPassword(registerUser.password);
 
       const newUser = new this.userRepository(registerUser);
       return newUser.save();
@@ -67,9 +69,11 @@ export class UserService {
       if (!user) {
         throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
       }
-      user.username = updateUserDto?.username;
-      user.email = updateUserDto?.email;
-      user.password = updateUserDto?.password;
+      user.username = updateUserDto?.username || user.username;
+      user.email = updateUserDto?.email || user.email;
+      user.password = updateUserDto?.password || user.password;
+      user.access_token = updateUserDto?.access_token || user.access_token;
+      user.refresh_token = updateUserDto?.refresh_token || user.refresh_token;
 
       return user.save();
     } catch (error) {
